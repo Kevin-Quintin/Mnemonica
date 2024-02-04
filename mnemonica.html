@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mnémonica Learning Quiz</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5; /* Couleur de fond */
+    }
+
+    #quiz-container {
+      text-align: center;
+      background-color: #ffffff; /* Couleur du conteneur */
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Ombre légère */
+      max-width: 400px; /* Largeur maximale pour éviter que le contenu ne devienne trop étiré sur les grands écrans */
+      width: 100%;
+      margin: 0 auto; /* Centrer le conteneur */
+    }
+
+    h1 {
+      color: #333333; /* Couleur du texte */
+    }
+
+    p {
+      color: #555555; /* Couleur du texte */
+      margin-bottom: 20px;
+    }
+
+    input {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%; /* Largeur de l'input à 100% pour s'adapter à la largeur du conteneur */
+      box-sizing: border-box; /* Inclure le rembourrage dans la largeur */
+      border: 1px solid #aaaaaa; /* Couleur de la bordure */
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #4caf50; /* Couleur du bouton */
+      color: white; /* Couleur du texte du bouton */
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%; /* Largeur du bouton à 100% pour s'adapter à la largeur du conteneur */
+      box-sizing: border-box; /* Inclure le rembourrage dans la largeur */
+    }
+
+    button:hover {
+      background-color: #45a049; /* Couleur du bouton au survol */
+    }
+  </style>
+</head>
+<body>
+
+<div id="quiz-container">
+  <h1>Mnémonica Learning Quiz</h1>
+  <p id="question"></p>
+  <input type="text" id="answerInput" placeholder="Your Answer">
+  <button onclick="checkAnswer()">Check Answer</button>
+  <button onclick="nextQuestion()">Next Question</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  let cartes = {
+    1: "4 trèfle", 2: "2 coeur", 3: "7 carreau", 4: "3 trèfle", 5: "4 coeur", 6: "6 carreau",
+    7: "As pique", 8: "5 coeur", 9: "9 pique", 10: "2 pique", 11: "Q coeur", 12: "3 carreau",
+    13: "Q trèfle", 14: "8 coeur", 15: "6 pique", 16: "5 pique", 17: "9 coeur", 18: "K trèfle",
+    19: "2 carreau", 20: "J coeur", 21: "3 pique", 22: "8 pique", 23: "6 coeur", 24: "10 trèfle",
+    25: "5 carreau", 26: "K carreau", 27: "2 trèfle", 28: "3 coeur", 29: "8 carreau", 30: "5 trèfle",
+    31: "K pique", 32: "J carreau", 33: "8 trèfle", 34: "10 pique", 35: "K coeur", 36: "J trèfle",
+    37: "7 pique", 38: "10 coeur", 39: "As carreau", 40: "4 pique", 41: "7 coeur", 42: "4 carreau",
+    43: "As trèfle", 44: "9 trèfle", 45: "J pique", 46: "Q carreau", 47: "7 trèfle", 48: "Q pique",
+    49: "10 carreau", 50: "6 trèfle", 51: "As coeur", 52: "9 carreau"
+  };
+
+  let currentIndex = 0;
+  let questionType = '';
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  function displayQuestion() {
+    const randomIndex = Math.floor(Math.random() * Object.keys(cartes).length) + 1;
+    const randomCard = cartes[randomIndex];
+    questionType = Math.random() < 0.5 ? 'value' : 'position';
+
+    if (questionType === 'value') {
+      const [value, suit] = randomCard.split(' ');
+      document.getElementById('question').innerText = `What is the value of the card at position ${randomIndex}?`;
+      currentIndex = { value, suit };
+    } else {
+      document.getElementById('question').innerText = `At what position is the card "${randomCard}"?`;
+      currentIndex = randomIndex;
+    }
+  }
+
+  function checkAnswer() {
+    const userAnswer = document.getElementById('answerInput').value.trim().toLowerCase();
+    const correctAnswer = (questionType === 'value') ? `${currentIndex.value} ${currentIndex.suit}` : (Object.keys(cartes).find(key => cartes[key] === cartes[currentIndex])).toString();
+
+    if (userAnswer === correctAnswer) {
+      Swal.fire({
+        title: 'Correct!',
+        text: 'Well done!',
+        icon: 'success',
+        confirmButtonText: 'Next',
+        onClose: () => {
+          displayQuestion();
+          document.getElementById('answerInput').value = '';
+        }
+      });
+    } else {
+      Swal.fire({
+        title: 'Incorrect',
+        text: `The correct answer is: ${correctAnswer}`,
+        icon: 'error',
+        confirmButtonText: 'Try Again'
+      });
+    }
+  }
+
+  function nextQuestion() {
+    displayQuestion();
+    document.getElementById('answerInput').value = '';
+  }
+
+  function getNextQuestionIndex() {
+    let nextIndex = null;
+    do {
+      nextIndex = Math.floor(Math.random() * Object.keys(cartes).length) + 1;
+    } while (nextIndex === currentIndex);
+
+    return nextIndex;
+  }
+
+  // Shuffle the order of questions initially
+  shuffle(Object.keys(cartes));
+  displayQuestion();
+</script>
+
+</body>
+</html>
